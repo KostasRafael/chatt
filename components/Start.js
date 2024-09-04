@@ -22,6 +22,7 @@ const StartScreen = ({ navigation }) => {
       <View style={{ flexDirection: "row", justifyContent: "center" }}>
         {colors.map((color, index) => (
           <TouchableOpacity
+            key={index}
             style={{
               backgroundColor: color,
               width: 50,
