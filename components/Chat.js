@@ -49,13 +49,13 @@ const ChatScreen = ({ route, navigation }) => {
       },
       {
         _id: 2,
-        text: "This is a system message",
+        text: "Welcome to the chat!",
         createdAt: new Date(),
         system: true,
       },
     ]);
   }, []);
-
+  // in order to diplsay the user's name as a title
   useEffect(() => {
     navigation.setOptions({ title: username });
   }, []);
