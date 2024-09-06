@@ -5,12 +5,15 @@ import {
   Text,
   KeyboardAvoidingView,
   Platform,
+  FlatList,
 } from "react-native";
 import { Bubble, GiftedChat } from "react-native-gifted-chat";
+import { collection, getDocs, addDoc, onSnapshot } from "firebase/firestore";
 
-const ChatScreen = ({ route, navigation }) => {
+const ChatScreen = ({ route, navigation, db }) => {
   const { username, background } = route.params;
   const [messages, setMessages] = useState([]);
+  const [lists, setLists] = useState([]);
   // called when a user sends a message
   const onSend = (newMessages) => {
     setMessages((previousMessages) =>
@@ -36,24 +39,21 @@ const ChatScreen = ({ route, navigation }) => {
   };
   // sets the state with a static message. Like this, the element will be displayed on the screen right away.
   useEffect(() => {
-    setMessages([
-      {
-        _id: 1,
-        text: "Hello developer",
-        createdAt: new Date(),
-        user: {
-          _id: 2,
-          name: "React Native",
-          avatar: "https://placeimg.com/140/140/any",
-        },
-      },
-      {
-        _id: 2,
-        text: "Welcome to the chat!",
-        createdAt: new Date(),
-        system: true,
-      },
-    ]);
+    const unsubMessages = onSnapshot(
+      collection(db, "messages"),
+      (documentsSnapshot) => {
+        let newLists = [];
+        documentsSnapshot.forEach((doc) => {
+          newLists.push({ id: doc.id, ...doc.data() });
+        });
+        setLists(newLists);
+      }
+    );
+
+    // Clean up code
+    return () => {
+      if (unsubShoppinglists) unsubShoppinglists();
+    };
   }, []);
   // in order to diplsay the user's name as a title
   useEffect(() => {
@@ -62,6 +62,14 @@ const ChatScreen = ({ route, navigation }) => {
 
   return (
     <View style={[styles.container, { backgroundColor: background }]}>
+      <FlatList
+        data={lists}
+        renderItem={({ item }) => (
+          <Text>
+            {item.name}: {item.items.join(", ")}
+          </Text>
+        )}
+      />
       <GiftedChat
         messages={messages}
         renderBubble={renderBubble}
