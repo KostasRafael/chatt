@@ -1,5 +1,5 @@
 import { Button, TextInput, ImageBackground } from "react-native";
-import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity, Alert } from "react-native";
 import { useState } from "react";
 import { getAuth, signInAnonymously } from "firebase/auth";
 

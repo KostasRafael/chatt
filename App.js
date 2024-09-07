@@ -1,5 +1,12 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View, Title, ImageBackground } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Title,
+  ImageBackground,
+  LogBox,
+} from "react-native";
 import StartScreen from "./components/Start";
 import ChatScreen from "./components/Chat";
 // import react Navigation
@@ -10,7 +17,9 @@ const Stack = createNativeStackNavigator();
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 
-export default function App() {
+LogBox.ignoreLogs(["AsyncStorage has been extracted from"]);
+
+const App = () => {
   const firebaseConfig = {
     apiKey: "AIzaSyAhW5CbRm__A3OKBkkQOwjSWWtwiumB6u4",
     authDomain: "chatapp-cf188.firebaseapp.com",
@@ -35,7 +44,7 @@ export default function App() {
       </Stack.Navigator>
     </NavigationContainer>
   );
-}
+};
 
 const styles = StyleSheet.create({
   imageBackground: {
@@ -46,3 +55,5 @@ const styles = StyleSheet.create({
     height: "100%",
   },
 });
+
+export default App;
