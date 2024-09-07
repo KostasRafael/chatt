@@ -17,34 +17,59 @@ import {
   orderBy,
 } from "firebase/firestore";
 
-const ChatScreen = ({ route, navigation, db }) => {
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const ChatScreen = ({ route, navigation, db, isConnected }) => {
   const { name, background, userID } = route.params;
   const [messages, setMessages] = useState([]);
 
   // sets the state with a static message. Like this, the element will be displayed on the screen right away.
+  let unsubMessages;
   useEffect(() => {
-    navigation.setOptions({ title: name });
-    const q = query(collection(db, "messages"), orderBy("createdAt", "desc"));
-    const unsubMessages = onSnapshot(q, (docs) => {
-      let newMessages = [];
-      docs.forEach((doc) => {
-        newMessages.push({
-          id: doc.id,
-          ...doc.data(),
-          createdAt: new Date(doc.data().createdAt.toMillis()),
+    if (isConnected === true) {
+      //  fetch messages from the Firestore Database only if there’s a network connection
+      // unregister current onSnapshot() listener to avoid registering multiple listeners when
+      // useEffect code is re-executed.
+      if (unsubMessages) unsubMessages();
+      unsubMessages = null;
+      const q = query(collection(db, "messages"), orderBy("createdAt", "desc"));
+      unsubMessages = onSnapshot(q, (docs) => {
+        let newMessages = [];
+        docs.forEach((doc) => {
+          newMessages.push({
+            id: doc.id,
+            ...doc.data(),
+            createdAt: new Date(doc.data().createdAt.toMillis()),
+          });
         });
+        cachedMessages(newMessages);
+        setMessages(newMessages);
       });
-      setMessages(newMessages);
-    });
+    } else {
+      // if there is not a network connection, fetch the data from the AsyncStorage
+      loadCachedMessages();
+    }
     return () => {
       if (unsubMessages) unsubMessages();
     };
-  }, []);
-  // Clean up code
+  }, [isConnected]);
+
+  const cachedMessages = async (messagesToCache) => {
+    try {
+      await AsyncStorage.setItem("messages", JSON.stringify(messagesToCache));
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  const loadCachedMessages = async () => {
+    const cachedLists = (await AsyncStorage.getItem("messages")) || [];
+    setMessages(JSON.parse(cachedMessages));
+  };
 
   // in order to diplsay the user's name as a title
   useEffect(() => {
-    navigation.setOptions({ title: name });
+    navigation.setOptions({ title: name, color: background });
   }, []);
 
   // called when a user sends a message
