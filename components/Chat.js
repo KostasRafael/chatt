@@ -5,9 +5,8 @@ import {
   Text,
   KeyboardAvoidingView,
   Platform,
-  FlatList,
 } from "react-native";
-import { Bubble, GiftedChat } from "react-native-gifted-chat";
+import { Bubble, GiftedChat, InputToolbar } from "react-native-gifted-chat";
 import {
   collection,
   getDocs,
@@ -15,6 +14,7 @@ import {
   onSnapshot,
   query,
   orderBy,
+  where,
 } from "firebase/firestore";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -22,6 +22,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 const ChatScreen = ({ route, navigation, db, isConnected }) => {
   const { name, background, userID } = route.params;
   const [messages, setMessages] = useState([]);
+
+  // in order to diplsay the user's name as a title and the chosen color as the background color
+  useEffect(() => {
+    navigation.setOptions({ title: name, color: background });
+  }, []);
 
   // sets the state with a static message. Like this, the element will be displayed on the screen right away.
   let unsubMessages;
@@ -63,14 +68,9 @@ const ChatScreen = ({ route, navigation, db, isConnected }) => {
   };
 
   const loadCachedMessages = async () => {
-    const cachedLists = (await AsyncStorage.getItem("messages")) || [];
+    const cachedMessages = (await AsyncStorage.getItem("messages")) || [];
     setMessages(JSON.parse(cachedMessages));
   };
-
-  // in order to diplsay the user's name as a title
-  useEffect(() => {
-    navigation.setOptions({ title: name, color: background });
-  }, []);
 
   // called when a user sends a message
   const onSend = (newMessages) => {
@@ -94,11 +94,18 @@ const ChatScreen = ({ route, navigation, db, isConnected }) => {
     );
   };
 
+  // render or not the InputTool depending on the connection status
+  const renderInputToolbar = (props) => {
+    if (isConnected) return <InputToolbar {...props} />;
+    else return null;
+  };
+
   return (
     <View style={[styles.container, { backgroundColor: background }]}>
       <GiftedChat
         messages={messages}
         renderBubble={renderBubble}
+        renderInputToolbar={renderInputToolbar}
         onSend={(messages) => onSend(messages)}
         user={{
           _id: userID,

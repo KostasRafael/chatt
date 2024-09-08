@@ -28,15 +28,6 @@ import { useEffect } from "react";
 LogBox.ignoreLogs(["AsyncStorage has been extracted from"]);
 
 const App = () => {
-  const firebaseConfig = {
-    apiKey: "AIzaSyAhW5CbRm__A3OKBkkQOwjSWWtwiumB6u4",
-    authDomain: "chatapp-cf188.firebaseapp.com",
-    projectId: "chatapp-cf188",
-    storageBucket: "chatapp-cf188.appspot.com",
-    messagingSenderId: "1011508160945",
-    appId: "1:1011508160945:web:9752aa4a25f797213ab590",
-  };
-
   const connectionStatus = useNetInfo();
   // Display an alert when connection is lost
   // disable or  enable connection yo the firestore database, dapending on the connection status
@@ -48,6 +39,16 @@ const App = () => {
       enableNetwork(db);
     }
   }, [connectionStatus.isConnected]);
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAhW5CbRm__A3OKBkkQOwjSWWtwiumB6u4",
+    authDomain: "chatapp-cf188.firebaseapp.com",
+    projectId: "chatapp-cf188",
+    storageBucket: "chatapp-cf188.appspot.com",
+    messagingSenderId: "1011508160945",
+    appId: "1:1011508160945:web:9752aa4a25f797213ab590",
+  };
+
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
 
