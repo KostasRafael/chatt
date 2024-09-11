@@ -7,7 +7,12 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
-import { Bubble, GiftedChat, InputToolbar } from "react-native-gifted-chat";
+import {
+  Bubble,
+  GiftedChat,
+  InputToolbar,
+  storage,
+} from "react-native-gifted-chat";
 import {
   collection,
   getDocs,
@@ -102,13 +107,23 @@ const ChatScreen = ({ route, navigation, db, isConnected }) => {
     else return null;
   };
 
+  // creates the circle button
   const renderCustomActions = (props) => {
-    return <CustomActions storage={storage} {...props} />;
+    return (
+      <CustomActions
+        storage={storage}
+        {...props}
+        accessible={true}
+        accesssibilityLabel="More options"
+        accessibilityHint="Lets you take and send photos and your current location"
+      />
+    );
   };
 
   const renderCustomView = (props) => {
     const { currentMessage } = props;
-    if (currentMessage.location) {
+    //console.log("current Message", currentMessage);
+    if (currentMessage?.location) {
       return (
         <MapView
           style={{ width: 150, height: 100, borderRadius: 13, margin: 3 }}

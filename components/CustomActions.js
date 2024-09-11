@@ -1,12 +1,26 @@
-import { TouchableOpacity } from "react-native";
+import { TouchableOpacity, StyleSheet, View, Text, Alert } from "react-native";
 import { useActionSheet } from "@expo/react-native-action-sheet";
 import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
-const CustomActions = ({ wrapperStyle, iconTextStyle, onSend, storage }) => {
+const CustomActions = ({
+  wrapperStyle,
+  iconTextStyle,
+  onSend,
+  storage,
+  userID,
+}) => {
+  // to fetch the actionSheet that is included inside the Gifted Chat component
   const actionSheet = useActionSheet();
 
+  const generateReference = (uri) => {
+    const timeStamp = new Date().getTime();
+    const imageName = uri.split("/")[uri.split("/").length - 1];
+    return `${userID}-${timeStamp}-${imageName}`;
+  };
+
+  // executes whe the action button is clicked
   const onActionPress = () => {
     const options = [
       "Choose From Library",
@@ -40,20 +54,28 @@ const CustomActions = ({ wrapperStyle, iconTextStyle, onSend, storage }) => {
     let permissions = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (permissions?.granted) {
       let result = await ImagePicker.launchImageLibraryAsync();
-      if (!result.canceled) await uploadAndSendImage(result.assets[0].uri);
-      else Alert.alert("Permissions haven't been granted.");
+      if (!result.canceled) {
+        console.log("result", result);
+        await uploadAndSendImage(result.assets[0].uri);
+      } else Alert.alert("Permissions haven't been granted.");
     }
   };
+
   // upload an image and send it as a message
   const uploadAndSendImage = async (imageURI) => {
-    const uniqueRefString = generateReference(imageURI);
-    const newUploadRef = ref(storage, uniqueRefString);
-    const response = await fetch(imageURI);
-    const blob = await response.blob();
-    uploadBytes(newUploadRef, blob).then(async (snapshot) => {
-      const imageURL = await getDownloadURL(snapshot.ref);
-      onSend({ image: imageURL });
-    });
+    try {
+      const uniqueRefString = generateReference(imageURI);
+      console.log("uniqueRefString", uniqueRefString);
+      const newUploadRef = ref(storage, uniqueRefString);
+      const response = await fetch(imageURI);
+      const blob = await response.blob();
+      uploadBytes(newUploadRef, blob).then(async (snapshot) => {
+        const imageURL = await getDownloadURL(snapshot.ref);
+        onSend({ image: imageURL });
+      });
+    } catch (exception) {
+      console.log("exception", exception);
+    }
   };
 
   const takePhoto = async () => {

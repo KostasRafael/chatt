@@ -2,6 +2,11 @@ import { Button, TextInput, ImageBackground } from "react-native";
 import { StyleSheet, Text, View, TouchableOpacity, Alert } from "react-native";
 import { useState } from "react";
 import { getAuth, signInAnonymously } from "firebase/auth";
+import { LogBox } from "react-native";
+
+//ignores warning message not needed
+LogBox.ignoreLogs(["AsyncStorage has been extracted from"]);
+a;
 
 const StartScreen = ({ navigation }) => {
   const auth = getAuth();
